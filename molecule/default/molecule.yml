@@ -8,12 +8,42 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: instance
-    box: ubuntu/xenial64
+  - name: haproxy-server
+    box: geerlingguy/centos7
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        ip: 192.168.11.3
+        type: static
+    groups:
+      - haproxy
 provisioner:
   name: ansible
+  inventory:
+    group_vars:
+      haproxy:
+        haproxy_frontend_services:
+          - name: proxy_http
+            mode: http
+            port: 80
+            default_backend: proxy_http
+        haproxy_backend_services:
+          - name: proxy_http
+            mode: http
+            options:
+              - forwardfor
+              - http-server-close
+              - httpchk
+            hosts:
+              - name: app_01
+                host: 192.168.11.3
+                port: 9090
+        haproxy_docker_expose:
+          - 80:80
   lint:
     name: ansible-lint
+  playbooks:
+    prepare: prepare.yml
 scenario:
   name: default
 verifier:

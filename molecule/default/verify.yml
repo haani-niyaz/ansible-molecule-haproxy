@@ -16,6 +16,14 @@
 
     inspec_test_directory: "/tmp/molecule/inspec"
   tasks:
+    - name: Check if Inspec RPM already exists
+      shell: "rpm -qa | grep {{ inspec_package_name[:-4] }}"
+      register: package_exists
+      args:
+        warn: false
+      ignore_errors: true
+
+
     - name: Download Inspec
       get_url:
         url: "{{ inspec_download_url }}"

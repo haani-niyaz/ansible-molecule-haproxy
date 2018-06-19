@@ -2,8 +2,31 @@
 - name: Prepare
   hosts: all
   gather_facts: false
+  become: true
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    AWS_DEFAULT_REGION: 'ap-southeast-2'
   tasks:
-    - name: Install python for Ansible
-      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-      become: true
-      changed_when: false
+    - name: Install pip
+      shell: easy_install pip
+    - name: Install pip packages
+      pip:
+        name: "{{ item }}"
+      with_items:
+        - docker-py
+        - awscli
+    - name: Install docker
+      yum:
+        name: docker
+    - name: Run docker service
+      service:
+        name: docker
+        state: running
+    - name: AWS login
+      shell: "$(aws ecr get-login --no-include-email --region ap-southeast-2)"
+
+    - name: Mock Backend
+      shell: "yum install -y httpd && sed -i 's/80/9090/' /etc/httpd/conf/httpd.conf && systemctl restart httpd && echo 'Hello World!' > /var/www/html/index.html"
+      args:
+        warn: false
