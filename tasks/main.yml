@@ -1,2 +1,28 @@
 ---
 # tasks file for ansible-molecule-haproxy
+
+- name: Create haproxy directory
+  tags: haproxy-dir
+  file:
+    path: '/etc/haproxy'
+    state: directory
+    owner: 0
+    group: 0
+    mode: 0755
+
+- name: Copy volume mapping config file
+  tags: haproxy-config
+  template:
+    src: haproxy.cfg.j2
+    dest: '/etc/haproxy/haproxy.cfg'
+    owner: 0
+    group: 0
+    mode: 0644
+
+- name: Run haproxy container
+  docker_container:
+    name: 'haproxy'
+    state: 'started'
+    image: "{{ haproxy_docker_image }}"
+    volumes: "{{ haproxy_volumes }}"
+    ports: "{{ haproxy_docker_expose }}"

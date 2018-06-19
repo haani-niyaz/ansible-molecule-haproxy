@@ -1,2 +1,11 @@
 ---
 # defaults file for ansible-molecule-haproxy
+
+haproxy_pidfile: /var/run/haproxy.pid
+haproxy_user: haproxy
+haproxy_group: haproxy
+haproxy_docker_expose: []
+haproxy_docker_image: ''
+haproxy_volumes:
+  - '/etc/haproxy:/usr/local/etc/haproxy'
+  - '/etc/ssl/private:/etc/ssl/private'
