@@ -2,7 +2,6 @@
 # tasks file for ansible-molecule-haproxy
 
 - name: Create haproxy directory
-  tags: haproxy-dir
   file:
     path: '/etc/haproxy'
     state: directory
@@ -11,7 +10,6 @@
     mode: 0755
 
 - name: Copy volume mapping config file
-  tags: haproxy-config
   template:
     src: haproxy.cfg.j2
     dest: '/etc/haproxy/haproxy.cfg'
