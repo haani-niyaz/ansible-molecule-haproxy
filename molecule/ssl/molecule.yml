@@ -1,0 +1,108 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+lint:
+  name: yamllint
+platforms:
+  - name: haproxy-server
+    box: geerlingguy/centos7
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        ip: 192.168.11.3
+        type: static
+    groups:
+      - haproxy
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      haproxy:
+        haproxy_docker_expose:
+          - 443:443
+        haproxy_frontend_services:
+          - name: proxy_https
+            mode: http
+            bind:
+              - "443 ssl crt {{ haproxy_ssl_cert_path }}/{{ haproxy_ssl_cert_file }}"
+            default_backend: proxy_https
+        haproxy_backend_services:
+          - name: proxy_https
+            mode: http
+            options:
+              - forwardfor
+              - http-server-close
+              - httpchk
+            hosts:
+              - name: app_01
+                host: 192.168.11.3
+                port: 9090
+        haproxy_ssl_enabled: true
+        haproxy_ssl_cert_path: /etc/ssl/private
+        haproxy_ssl_cert_file: server.pem
+        haproxy_ssl_cert: |
+          -----BEGIN CERTIFICATE-----
+          MIIDkzCCAnugAwIBAgIJAN1GgOa6QQT2MA0GCSqGSIb3DQEBCwUAMGAxCzAJBgNV
+          BAYTAkFVMQwwCgYDVQQIDANWSUMxEjAQBgNVBAcMCU1FTEJPVVJORTEcMBoGA1UE
+          CgwTRGVmYXVsdCBDb21wYW55IEx0ZDERMA8GA1UEAwwIYWNtZS5kZXYwHhcNMTgw
+          NjE4MjIyMzU2WhcNMTkwNjE4MjIyMzU2WjBgMQswCQYDVQQGEwJBVTEMMAoGA1UE
+          CAwDVklDMRIwEAYDVQQHDAlNRUxCT1VSTkUxHDAaBgNVBAoME0RlZmF1bHQgQ29t
+          cGFueSBMdGQxETAPBgNVBAMMCGFjbWUuZGV2MIIBIjANBgkqhkiG9w0BAQEFAAOC
+          AQ8AMIIBCgKCAQEA40esqJd09yTzhK6/5WVfzWGd6uLrO+YAlDmxKQ6ZyzS958lO
+          /KME3VcP57VqiYkgXrRkax3Ks6glZcxgNfcmfPylUQxcNGkcjPNXuBiFvS/1SiN5
+          5gFhgC7RbxK3mZN/m+RaUM3SCAmxzj/qWq1BrM7jTi/GTx2Fs/jrZ0g1MPbP3Kmp
+          1qhJKYYuHFmdy8466ERQg/ojw8EyUqln3/cKTNKmKLT9xC8DDxyFllj2JcqE18a8
+          EVcchS91RXM8apFAF66EiWhXFhGI4vnj8rRzH2kk0IccThq2/alTB/z2otUVpvXB
+          eq99Ad3bCO7rwRrwYiwhGtYqkt20MImUppQ1mwIDAQABo1AwTjAdBgNVHQ4EFgQU
+          RWGLDHo01nml4BdIwA3YRL7CuvIwHwYDVR0jBBgwFoAURWGLDHo01nml4BdIwA3Y
+          RL7CuvIwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAM96/A6Pn0mD1
+          CPP0DFIUO10WxsvlG0/6UfhvYKfZLoZuwDoKYMAe5XGnvm1gAUFtMjWKARpK80iI
+          hjYUpVQb1C/DrARkpCBfHaiE82GJjZEfxsXXfRrNjTEcAdt11k3tXD0SN4HlVpDZ
+          hW8BntKus8Yhg/e+hl4J39lzm/s+JYJFCWGcG2y3+K4BJSuBAytFOq4u7txT8yWd
+          kz9pke8zQuOxGJcgiLBnwishxgFKaNw6htMSVjdGkguDk7s7tUeszL/+jpgVNlqb
+          MX4aFPk6eR6KsCag09asvGkhxMSOIG7ZUm97nqGc5r5tSOOz7+zqTP4+js66NT3n
+          zcdONuYiOg==
+          -----END CERTIFICATE-----
+          -----BEGIN PRIVATE KEY-----
+          MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDjR6yol3T3JPOE
+          rr/lZV/NYZ3q4us75gCUObEpDpnLNL3nyU78owTdVw/ntWqJiSBetGRrHcqzqCVl
+          zGA19yZ8/KVRDFw0aRyM81e4GIW9L/VKI3nmAWGALtFvEreZk3+b5FpQzdIICbHO
+          P+parUGszuNOL8ZPHYWz+OtnSDUw9s/cqanWqEkphi4cWZ3LzjroRFCD+iPDwTJS
+          qWff9wpM0qYotP3ELwMPHIWWWPYlyoTXxrwRVxyFL3VFczxqkUAXroSJaFcWEYji
+          +ePytHMfaSTQhxxOGrb9qVMH/Pai1RWm9cF6r30B3dsI7uvBGvBiLCEa1iqS3bQw
+          iZSmlDWbAgMBAAECggEAJDSexJyb/WLdiB1uZFSp1kXeqjRL1Nbm8LXgCvJQfZaB
+          ShM/ie9OLxRXbEnyFsbJaUzDUm0EhWobywOrr+0XLIHys96MMa0s5yc8qg79/w1M
+          veq42HMP3SOYKWGJ7eUZRvQxjv26n50rvfdgleFTvPuYKjRiGuhRDEJy/Zj7IDlk
+          OXd8ZutRMPQwy6QDHsxUqcqeXXOYTLuu0Kw2HW7/U1o9PtjrDCOkofJyR+o+a5lk
+          wd/sZ6/vOhutDGpsILPTbMTx3DHjnWqytNpT20l1kr1hDx0+4ue6BIEMAJMRQkUd
+          2BzJpN336AoHe5b6rl99zypzKs7fAZwNhluNm+75gQKBgQDx6pI4vi33td3+t8JO
+          BB8UWc6jNJDx3VISdJkUA8vqrHkL9XJIaSjmiFkQmDx3uXWn3BPh9OanyY09imHV
+          pV7NkBKakTQJngz+Pc5X7wHr81Dna6a5YNKoITM2GT87/ZyC3vfcc+tW+O0P4hEy
+          nKXiOyyGzTx4V0U5p5T8IdNjUwKBgQDwgvgbaLe3Ws7JlehcEdlwKm5qOATPzsvT
+          QUA48dFbmKk7bJY60oXMWkF9XrYieRZG1Ybz0Ze3YVMutGlFios15ic6LK+ASyLx
+          10QM9KiAmIDmk81oOEB7oYkhAypcjL1gbxAYYcxFRks9LySVHMDetmQuFdapAEcX
+          BLYd7QCjmQKBgBLyiWNSWe1V3D5QDDLqFbkVU57qxhN7fysc4MR1i6okuhJatgm/
+          2sk7kqY/FjVWXEW6cgA3mz03Bw3z4bfHDQbSqvJaPxYlv+TF2HyApsjhNMv7XYKV
+          d8pdV1J8ZbyAH5sMdaNZnOwh8QdWcHxjUobGlbU1K/BM/YoHex7IU3MrAoGBAMe9
+          TQWeSuzISnHZwFYuMLFZW8d07HIUoOu6BfcExMTYHLuQK5eAXMPgtQDEVmh8vUZo
+          cKIuj1wpRKbGB6NMMt65XByRHdNjEwtbplVIHmRlwq87UlxaUxsZhUPYWCbybxgW
+          RHyrQ7TIcxXGABCiB38uZDZtxo8l/uQb8o8Z0+0JAoGAWKrlZh1xj3Rm+kZ84Lzh
+          icSWZtIab9fFMBF9uE8rHDwtdp0eZDcTi8YPv0a8Nwm6wfj5QrvkLjxlANNuKmMx
+          kLUfch1YeFneVEaSxu8YqL9c7qpfAVadNa+k4/RQTuMK1RBKMumPx2reEFd9Slp9
+          0wKPOfNhsKIhHPWKplMTciA=
+          -----END PRIVATE KEY-----
+  lint:
+    name: ansible-lint
+  playbooks:
+    prepare: ../default/prepare.yml
+    verify: ../default/verify.yml
+scenario:
+  name: ssl
+verifier:
+  name: inspec
+  lint:
+    name: rubocop
