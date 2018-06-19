@@ -19,6 +19,25 @@
     group: 0
     mode: 0644
 
+- name: Create SSL directory
+  tags: ssl-dir
+  file:
+    path: '{{ haproxy_ssl_cert_path }}'
+    state: directory
+    owner: 0
+    group: 0
+    mode: 0700
+  when: haproxy_ssl_enabled
+
+- name: Copy SSL cert
+  tags: ssl
+  template:
+    src: ssl_cert.j2
+    dest: "{{ haproxy_ssl_cert_path }}/{{ haproxy_ssl_cert_file }}"
+    owner: 0
+    group: 0
+    mode: 0600
+
 - name: Run haproxy container
   docker_container:
     name: 'haproxy'
