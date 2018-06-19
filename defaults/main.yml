@@ -5,7 +5,7 @@ haproxy_pidfile: /var/run/haproxy.pid
 haproxy_user: haproxy
 haproxy_group: haproxy
 haproxy_docker_expose: []
-haproxy_docker_image: '256456389428.dkr.ecr.ap-southeast-2.amazonaws.com/telstra-media/haproxy'
+haproxy_docker_image: ''
 haproxy_volumes:
   - '/etc/haproxy:/usr/local/etc/haproxy'
   - '/etc/ssl/private:/etc/ssl/private'
