@@ -5,7 +5,7 @@ An example of using ansible molecule for testing docker haproxy.
 
 ### Install dependencies
 
-```console
+```bash
 $ pip install pipenv
 $ pipenv --python 2.7
 $ pipenv install python-vagrant
